@@ -110,12 +110,24 @@ data <- readRDS("ROMS_bottom_temp_since_1985_merged_ESR.RDS") %>%
                bind_rows %>% 
                mutate(date=as_date(READ_DATE)) %>% 
                data.frame %>% 
-               dplyr::select(date,meansst=MEANSST,Ecosystem_sub=ECOSYSTEM_SUB)) %>% 
+               dplyr::select(date,meansst=MEANSST,Ecosystem_sub=ECOSYSTEM_SUB))
+
+
+#  Plot sst and bt
+data %>%
   gather(index,temperature,-c(date,Ecosystem_sub))
-
-
-data %>% 
   ggplot(aes(date,temperature,linetype=index)) + 
   geom_line() + 
   facet_wrap(~Ecosystem_sub,ncol=1) + 
   theme_bw()
+  
+
+  # Plot the difference between SST and BT  
+  data %>%
+    mutate(diff=meansst-meanbt) %>% 
+    ggplot(aes(date,diff)) + 
+    geom_line() + 
+    geom_smooth() +
+    facet_wrap(~Ecosystem_sub,ncol=1) + 
+    theme_bw()
+  
