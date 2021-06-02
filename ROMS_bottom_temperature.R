@@ -95,6 +95,7 @@ readRDS("ROMS_bottom_temp_EBS_since_1985.RDS") %>%
   saveRDS("ROMS_bottom_temp_since_1985_merged_ESR.RDS")
 
 
+#  Read in the data from both the bottom temperature and the surface temperature and plot them together. 
 data <- readRDS("ROMS_bottom_temp_since_1985_merged_ESR.RDS") %>% 
   rename(Ecosystem_sub=Ecosystem_Subarea) %>% 
   group_by(date,Ecosystem_sub) %>% 
