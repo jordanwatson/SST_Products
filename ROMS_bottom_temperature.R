@@ -1,10 +1,13 @@
+#  Extract ROMS bottom temperature from the weekly (level-2) ROMS data and clip those data to a shapefile.
+#  In this case, we clip to the ESR Bering Sea regions.
+#  The final output shows a figure that merges the SST (web service) and BT (ROMS)
+
+
 library(RNetCDF)
 library(tidync)
 require(tidyverse)
 require(lubridate)
 library(sf)
-
-#Redone with ROMS data
 
 #  Access netcdfs from THREDDS server (https://data.pmel.noaa.gov/aclim/thredds/catalog.html)
 
@@ -94,6 +97,9 @@ readRDS("ROMS_bottom_temp_EBS_since_1985.RDS") %>%
   mutate(date=as_date(as_datetime(ocean_time,origin="1900-01-01 00:00:00", tz = "UTC"))) %>% 
   saveRDS("ROMS_bottom_temp_since_1985_merged_ESR.RDS")
 
+
+#----------------------------------------------------------------------------------------------
+#  Now generate a weekly temperature plot that shows SST and BT for the NBS and SEBS.
 
 #  Read in the data from both the bottom temperature and the surface temperature and plot them together. 
 data <- readRDS("ROMS_bottom_temp_since_1985_merged_ESR.RDS") %>% 
