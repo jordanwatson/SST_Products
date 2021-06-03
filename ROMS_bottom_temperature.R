@@ -12,14 +12,20 @@ library(sf)
 #  Access netcdfs from THREDDS server (https://data.pmel.noaa.gov/aclim/thredds/catalog.html)
 
 #  We are interested in bottom temperature for the Bering Sea ecosystem regions, which are much smaller than the ROMS extent. 
-#  Read in our lookup table for the Bering Sea to find some spatial bounds.
-lkp <- readRDS("Data/crwsst/crwsst_spatial_lookup_table.RDS") %>% 
-  filter(Ecosystem=="Eastern Bering Sea") %>% 
-  dplyr::select(longitude,latitude) %>% 
-  summarise(maxlat=max(latitude),
-            minlat=min(latitude),
-            maxlon=max(longitude),
-            minlon=min(longitude))
+#  Read in our shapefile (which we'll use again later) and extract the coordinates of the bounding box. 
+esr_shp <- st_read('Data/Shapefiles/Alaska_Marine_Management_Areas.gdb',layer="Alaska_Marine_Areas_dd") %>% 
+  filter(Ecosystem_Subarea%in%c("Northern Bering Sea","Southeastern Bering Sea"))
+
+lkp <- esr_shp %>% 
+  st_bbox()%>% 
+  st_as_sfc %>% 
+  st_cast("MULTIPOINT") %>% 
+  st_coordinates() %>% 
+  data.frame %>% 
+  summarise(maxlat=max(Y),
+            minlat=min(Y),
+            maxlon=max(X),
+            minlon=min(X))
 
 #  We need to access the file containing the extended spatial grids, which contains different transformations of the spatial coordinates.
 grid<-tidync("https://data.pmel.noaa.gov/aclim/thredds/dodsC/extended_grid/Bering10K_extended_grid.nc")
@@ -67,9 +73,10 @@ ROMS %>%
 
 
 
-#  Read in the ESR shapefile and subset for the Bering areas
-esr_shp <- st_read('Data/Shapefiles/Alaska_Marine_Management_Areas.gdb',layer="Alaska_Marine_Areas_dd") %>% 
-  filter(Ecosystem_Subarea%in%c("Northern Bering Sea","Southeastern Bering Sea"))
+#  In case you removed the shapefile that was read in previously, reload it here. 
+# esr_shp <- st_read('Data/Shapefiles/Alaska_Marine_Management_Areas.gdb',layer="Alaska_Marine_Areas_dd") %>% 
+#   filter(Ecosystem_Subarea%in%c("Northern Bering Sea","Southeastern Bering Sea"))
+
 
 #  Plot it.
 #ggplot() + 
